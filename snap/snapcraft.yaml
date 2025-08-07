@@ -1,0 +1,70 @@
+name: obs-studio-openvino-plugins
+base: core24
+version: v1.1-1-g128e
+summary: OpenVINO AI plugins
+description: OpenVINO based plugins that add AI features to OBS Studio
+
+grade: stable
+confinement: strict
+
+platforms:
+  amd64:
+
+slots:
+  obs-plugins:
+    interface: content
+    read:
+      - /obs-plugins
+
+  obs-plugins-data:
+    interface: content
+    read:
+      - /obs-plugins-data
+
+  obs-plugins-extra-libs:
+    interface: content
+    read:
+      - /usr/lib
+
+parts:
+  openvino-plugins:
+    source: https://github.com/intel/openvino-plugins-for-obs-studio.git
+    source-type: git
+    source-commit: v1.1-1-g128e
+    plugin: dump
+    build-environment:
+      - OpenVINO_DIR: /snap/openvino-toolkit-2404/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/cmake/
+      - libobs_DIR: /snap/obs-studio/current/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/cmake/
+    build-packages:
+      - libopencv-dev
+      - cmake
+    build-snaps:
+      - openvino-toolkit-2404/latest/stable
+      - obs-studio/latest/candidate
+    override-build: |
+      set -eux
+      cd $CRAFT_PART_BUILD
+      cmake .
+      make -j"$(nproc)"
+
+      OBS_PLUGINS_PATH=${CRAFT_PART_INSTALL}/obs-plugins
+      OBS_PLUGINS_DATA_PATH=${CRAFT_PART_INSTALL}/obs-plugins-data
+
+      mkdir -p $OBS_PLUGINS_PATH $OBS_PLUGINS_DATA_PATH
+
+      for PLUGIN_SO in $(find ${CRAFT_PART_BUILD}/intel64/Release/lib/ -name '*.so'); do
+        cp ${PLUGIN_SO} ${OBS_PLUGINS_PATH}/
+
+        PLUGIN_DATA=$(basename ${PLUGIN_SO%.so})
+        PLUGIN_DATA=${PLUGIN_DATA#lib}
+        mkdir ${OBS_PLUGINS_DATA_PATH}/${PLUGIN_DATA}
+      done
+
+      cp -R openvino-models/ ${OBS_PLUGINS_DATA_PATH}/
+    stage-packages:
+      - libopencv-imgproc406t64
+      - libopencv-imgcodecs406t64
+      - libopencv-core406t64
+    stage-snaps:
+      - openvino-toolkit-2404/latest/stable
+

@@ -1,7 +1,7 @@
-name: obs-studio-openvino-plugins
+name: openvino-plugins-obs-studio
 base: core24
 version: v1.1-1-g128e
-summary: OpenVINO AI plugins
+summary: OpenVINO AI plugins for OBS Studio
 description: OpenVINO based plugins that add AI features to OBS Studio
 
 grade: stable
@@ -16,17 +16,14 @@ slots:
     read:
       - /obs-plugins
 
-  obs-plugins-data:
-    interface: content
-    read:
-      - /obs-plugins-data
-
-  obs-plugins-extra-libs:
-    interface: content
-    read:
-      - /usr/lib
-
 parts:
+  prepare-hook:
+    plugin: nil
+    override-build: |
+      mkdir -p ${CRAFT_PART_INSTALL}/obs-plugins ${CRAFT_PART_INSTALL}/snap/hooks/
+      echo "${CRAFT_PROJECT_NAME}" > ${CRAFT_PART_INSTALL}/obs-plugins/snapname.txt
+      echo -e '#!/bin/bash\nsnapctl set :obs-plugins snapname='"${CRAFT_PROJECT_NAME}" > ${CRAFT_PART_INSTALL}/snap/hooks/prepare-slot-obs-plugins
+
   openvino-plugins:
     source: https://github.com/intel/openvino-plugins-for-obs-studio.git
     source-type: git
@@ -47,8 +44,8 @@ parts:
       cmake .
       make -j"$(nproc)"
 
-      OBS_PLUGINS_PATH=${CRAFT_PART_INSTALL}/obs-plugins
-      OBS_PLUGINS_DATA_PATH=${CRAFT_PART_INSTALL}/obs-plugins-data
+      OBS_PLUGINS_PATH=${CRAFT_PART_INSTALL}/obs-plugins/plugins
+      OBS_PLUGINS_DATA_PATH=${CRAFT_PART_INSTALL}/obs-plugins/data
 
       mkdir -p $OBS_PLUGINS_PATH $OBS_PLUGINS_DATA_PATH
 
@@ -67,4 +64,5 @@ parts:
       - libopencv-core406t64
     stage-snaps:
       - openvino-toolkit-2404/latest/stable
-
+    organize:
+      usr/lib: obs-plugins/lib

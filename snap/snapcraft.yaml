@@ -1,8 +1,19 @@
 name: openvino-plugins-obs-studio
 base: core24
 version: v1.1-1-g128e
-summary: OpenVINO AI plugins for OBS Studio
-description: OpenVINO based plugins that add AI features to OBS Studio
+summary: Intel OpenVINO™ AI plugins for OBS Studio
+description: |
+   A set of OpenVINO™ based plugins that add AI features to OBS Studio:
+    * **Smart Framing** - Detect person(s) / face(s) in a scene, and automatically crop / center / resize around the subjects of interest. 
+    * **Background Concealment** – Segment a person in the foreground from background, and allow background to be removed via blur, static image, or virtual green sceen (for chroma keying). 
+    * **Face Mesh** – Performs Mediapipe's face mesh pipeline using OpenVINO & OpenCV. Overlays 468 facial key-points onto resultant frame. The intent is a reference / starting point for developers wanting to implement broader face effects. 
+
+website: https://github.com/intel/openvino-plugins-for-obs-studio
+contact: https://github.com/canonical/openvino-plugins-obs-studio-snap/issues
+issues: https://github.com/intel/openvino-plugins-for-obs-studio/issues
+source-code: https://github.com/canonical/openvino-plugins-obs-studio-snap
+
+license: Apache-2.0
 
 grade: stable
 confinement: strict

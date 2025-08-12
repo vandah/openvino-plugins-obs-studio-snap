@@ -13,15 +13,15 @@ platforms:
 slots:
   obs-plugins:
     interface: content
-    read:
-      - /obs-plugins
+    source:
+      read:
+        - /${CRAFT_PROJECT_NAME}
 
 parts:
   prepare-hook:
     plugin: nil
     override-build: |
-      mkdir -p ${CRAFT_PART_INSTALL}/obs-plugins ${CRAFT_PART_INSTALL}/snap/hooks/
-      echo "${CRAFT_PROJECT_NAME}" > ${CRAFT_PART_INSTALL}/obs-plugins/snapname.txt
+      mkdir -p ${CRAFT_PART_INSTALL}/snap/hooks/
       echo -e '#!/bin/bash\nsnapctl set :obs-plugins snapname='"${CRAFT_PROJECT_NAME}" > ${CRAFT_PART_INSTALL}/snap/hooks/prepare-slot-obs-plugins
 
   openvino-plugins:
@@ -44,8 +44,8 @@ parts:
       cmake .
       make -j"$(nproc)"
 
-      OBS_PLUGINS_PATH=${CRAFT_PART_INSTALL}/obs-plugins/plugins
-      OBS_PLUGINS_DATA_PATH=${CRAFT_PART_INSTALL}/obs-plugins/data
+      OBS_PLUGINS_PATH=${CRAFT_PART_INSTALL}/${CRAFT_PROJECT_NAME}/plugins
+      OBS_PLUGINS_DATA_PATH=${CRAFT_PART_INSTALL}/${CRAFT_PROJECT_NAME}/data
 
       mkdir -p $OBS_PLUGINS_PATH $OBS_PLUGINS_DATA_PATH
 
@@ -65,4 +65,4 @@ parts:
     stage-snaps:
       - openvino-toolkit-2404/latest/stable
     organize:
-      usr/lib: obs-plugins/lib
+      usr/lib: ${CRAFT_PROJECT_NAME}/lib
